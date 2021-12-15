@@ -7,26 +7,59 @@ import Details from "./Details";
 
 const defultCenter = [0, 0];
 const defaultZoom = 13;
-let fetchedData;
+const myHeaders = new Headers();
+
 function App() {
   const [ip, setIp] = useState("");
   const [apiUrl, setApiUrl] = useState(
-    "https://geo.ipify.org/api/v2/country,city?apiKey=at_CGJTd6vc7ck6dpfEafT0tqrASyb0O"
+    "https://geo.ipify.org/api/v2/country,city?apiKey=at_P9NFvlXwCLX2sgno1ZsdEC2E4BkxK&ipAddress="
   );
   const [data, setData] = useState(null);
+  // const [position, setPosition] = useState([]);
 
-  const getIP = async (Url) => {
-    await fetch(Url, { method: "GET" })
+  const fetchData = () => {
+    return fetch(apiUrl, {
+      method: "GET",
+      mode: "cors",
+      headers: myHeaders,
+    })
       .then((response) => response.json())
-      .then((result) => {
-        return (fetchedData = result);
+      .then((Data) => {
+        setData(Data);
       });
-    setData({ ...fetchedData });
   };
 
   useEffect(() => {
-    Promise.all(getIP(apiUrl));
-  }, []);
+    const timer = setTimeout(() => {
+      setApiUrl(apiUrl + ip);
+    }, 1000);
+    fetchData();
+    return () => clearTimeout(timer);
+  }, [ip]);
+
+  function LocationMarker() {
+    const [position, setPosition] = useState(null);
+    // const [bbox, setBbox] = useState([]);
+
+    const map = useMap();
+
+    useEffect(() => {
+      map.locate().on("locationfound", function (e) {
+        setPosition(e.latlng);
+        map.flyTo(e.latlng, map.getZoom());
+        const radius = e.accuracy;
+        const circle = L.circle(e.latlng, radius);
+        circle.addTo(map);
+        // setBbox(e.bounds.toBBoxString().split(","));
+      });
+    }, [map]);
+
+    return position === null ? null : (
+      <Marker position={position} icon={icon}>
+        <Popup>You are here.</Popup>
+      </Marker>
+    );
+  }
 
   return (
     <div className="App grid">
@@ -39,13 +72,14 @@ function App() {
           <input
             type="text"
             className="input"
+            minLength="7"
+            maxLength="13"
+            pattern="/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/"
+            defaultValue={ip}
             onChange={(e) => setIp(e.target.value)}
             placeholder="Search for any IP address or domain"
           />
-          <div
-            className="icon"
-            onClick={() => setApiUrl(apiUrl + "&ipAddress=" + ip)}
-          ></div>
+          <div className="icon" onClick={() => fetchData()}></div>
         </div>
         <Details data={data} />
       </div>
@@ -63,6 +97,7 @@ function App() {
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <LocationMarker />
           </MapContainer>
         </div>
       </div>

@@ -26,7 +26,7 @@ function Details({ data }) {
       </div>
     );
   } else {
-    return <div className="details">{"Something Went Wrong"}</div>;
+    return <div className="details">{"Loading Data"}</div>;
   }
 }
 
