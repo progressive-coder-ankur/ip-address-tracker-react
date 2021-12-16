@@ -160,12 +160,7 @@ input[type="text"]:focus {
 .timezone,
 .ISP {
   gap: 0.5rem;
-  border-left: 1px solid var(--clr-light-text);
-  padding-left: 2rem;
-}
-
-.ip {
-  border-left: none;
+  align-items: center;
 }
 
 .attribution {
@@ -184,7 +179,6 @@ input[type="text"]:focus {
   background-image: url("./images/icon-arrow.svg");
   width: 50px;
   height: 50px;
-  /* background-size: contain; */
   object-fit: scale-down;
   background-position: center;
   background-repeat: no-repeat;
@@ -216,5 +210,17 @@ input[type="text"]:focus {
 
   input[type="text"] {
     width: 25rem;
+  }
+
+  .ip,
+  .location,
+  .timezone,
+  .ISP {
+    border-left: 1px solid var(--clr-light-text);
+    padding-left: 2rem;
+  }
+
+  .ip {
+    border-left: none;
   }
 }
